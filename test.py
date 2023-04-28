@@ -7,7 +7,7 @@ from glob import glob
 import mahotas
 from scipy.spatial.distance import cdist
 from skimage.feature import hog
-
+import time
 # wh_ratios = (0.5, 0.8, 1.25, 2.0)
 wh_ratios = (0.5, 1.0, 2.0)
 slide_config = {
@@ -127,6 +127,7 @@ for MODEL_NAME in [
         # print(image_path)
         image = cv2.imread(image_path)
         boxes = []
+        start_time = time.time()
         for label, pad in sliding_window(image):
             gray = resize_gray(pad)
             fd = extract[FEATURE_TYPE](gray)
@@ -144,6 +145,7 @@ for MODEL_NAME in [
         filtered_boxes = non_max_suppression_fast(new_boxes, 0.5)
         filtered_boxes[:, 2] -= filtered_boxes[:, 0]
         filtered_boxes[:, 3] -= filtered_boxes[:, 1]
-
+        end_time = time.time()
+        print(" time inference: ", end_time-start_time)
         name = os.path.basename(image_path).split('.')[0]
         save_label( f'./detections/{DATA_NAME}/{MODEL_NAME}', name, filtered_boxes)
